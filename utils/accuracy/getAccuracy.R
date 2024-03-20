@@ -151,8 +151,15 @@ for (i in 1:length(unique(file_name))) {
       toCompute <- subset(toCompute, predicted %in% unique_reference & reference %in% unique_predicted)
       
       ## get confusion matrix 
-      confusion <- confusionMatrix(data = as.factor(toCompute$predicted),
-                                   reference = as.factor(toCompute$reference))
+      try(
+        confusion <- confusionMatrix(data = as.factor(toCompute$predicted),
+                                   reference = as.factor(toCompute$reference)), silent= TRUE)
+      
+      ## skip if exists only one level 
+      if(exists('confusion') == FALSE) {
+        warning('Only one level is present, skipping estimation')
+        next
+      }
       
       ## get metrics
       metrics <- rbind(melt(confusion$overall), 
