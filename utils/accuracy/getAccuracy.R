@@ -138,13 +138,13 @@ for (i in 1:length(unique(file_name))) {
       ## Check for missing classes in the reference
       missing_classes <- unique_predicted[!(unique_predicted %in% unique_reference)]
       if (length(missing_classes) > 0) {
-        warning("classes occurs in the variable 'predicted' but not in 'reference': ", paste(missing_classes, collapse = ", "))
+        print(paste0("classes occurs in the variable 'predicted' but not in 'reference': ", paste(missing_classes, collapse = ", ")))
       }
       
       ## Check for missing classes in the 'predicted' variable
       missing_classes <- unique_reference[!(unique_reference %in% unique_predicted)]
       if (length(missing_classes) > 0) {
-        warning("classes occurs in the variable 'reference', but not in 'predicted': ", paste(missing_classes, collapse = ", "))
+        print(paste0("classes occurs in the variable 'reference', but not in 'predicted': ", paste(missing_classes, collapse = ", ")))
       }
       
       ## Filter only classes present in both variables
@@ -157,7 +157,7 @@ for (i in 1:length(unique(file_name))) {
       
       ## skip if exists only one level 
       if(exists('confusion') == FALSE) {
-        warning('Only one level is present, skipping estimation')
+        print('Only one level is present, skipping estimation')
         next
       }
       
