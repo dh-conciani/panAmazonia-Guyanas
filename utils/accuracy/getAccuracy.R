@@ -160,10 +160,16 @@ for (i in 1:length(unique(file_name))) {
         print('Only one level is present, skipping estimation')
         next
       }
-      
+
       ## get metrics
-      metrics <- rbind(melt(confusion$overall), 
-                       melt(confusion$byClass[,11]))
+      try(
+        metrics <- rbind(melt(confusion$overall), 
+                         melt(confusion$byClass[,11])), silent= TRUE)
+      
+      if(exists('metrics') == FALSE) {
+        metrics <- rbind(melt(confusion$overall))
+        print('Per class accuracy unnavaliable')
+      }
       
       ## build results 
       ## insert variables name
@@ -181,6 +187,8 @@ for (i in 1:length(unique(file_name))) {
       ## bind data 
       recipe_metrics <- rbind(recipe_metrics, metrics)
       recipe_table <- rbind(recipe_table, confusionTable)
+      
+      rm(metrics)
     }
   }
   
