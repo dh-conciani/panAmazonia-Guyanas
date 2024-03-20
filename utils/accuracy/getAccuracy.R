@@ -17,9 +17,9 @@ file_path <- 'projects/mapbiomas-raisg/public/'
 ##  define files to be computed
 file_name <- c(
   'collection5/mapbiomas_raisg_panamazonia_collection2_integration_v1',
-  'collection5/mapbiomas_raisg_panamazonia_collection3_integration_v1',
-  'collection5/mapbiomas_raisg_panamazonia_collection4_integration_v1',
-  'collection5/mapbiomas_raisg_panamazonia_collection5_integration_v1'
+  'collection4/mapbiomas_raisg_panamazonia_collection3_integration_v1',
+  'collection3/mapbiomas_raisg_panamazonia_collection4_integration_v1',
+  'collection2/mapbiomas_raisg_panamazonia_collection5_integration_v1'
 )
 
 ## set output path (local)
@@ -28,42 +28,43 @@ output <- './table/'
 ## import validation points
 validation_points = ee$FeatureCollection('users/vieiramesquita/MAPBIOMAS/mapbiomas_amazonia_50K_RAISG_plus_Brasil_v6')
 
-Map$addLayer(validation_points)
-
-## set classes to select from validation dataset
+## set classes to be validated 
 selectClasses = c(
-  'LAVOURA TEMPORÁRIA',            
-  'LAVOURA PERENE',           
-  'CANA',      
-  'PASTAGEM',       
-  'FORMAÇÃO FLORESTAL',
-  'RIO, LAGO E OCEANO',
-  'FORMAÇÃO CAMPESTRE',
-  'FORMAÇÃO SAVÂNICA',
-  'OUTRA ÁREA NÃO VEGETADA',
-  'CAMPO ALAGADO E ÁREA PANTANOSA'
+  'Formación Forestal',            
+  'Formação Florestal',           
+  'Formación Natural No Forestal Inundable',      
+  'Otra Formación Natural No Forestal',       
+  'Outra Formação Natural Não Florestal"',
+  'Mosaico de Agricultura y/o Pasto',
+  'Área sin Vegetación',
+  'Río, Lago u Océano'
 )
 
-## get classification regions
-regions <- ee$FeatureCollection('users/dh-conciani/collection7/classification_regions/vector_v2')
-regions_list <- sort(regions$aggregate_array('mapb')$getInfo())
-
-## set years to be processed
-years <- seq(from=1985, to=2018)
-
+## set dictionary for each class
 ## set dictionary
 classes <- ee$Dictionary(list(
-  'LAVOURA TEMPORÁRIA'= 21,            
-  'LAVOURA PERENE'= 21,           
-  'CANA'= 21,      
-  'PASTAGEM'= 21,       
-  'FORMAÇÃO FLORESTAL'= 3,
-  'RIO, LAGO E OCEANO'= 33,
-  'FORMAÇÃO CAMPESTRE'= 12,
-  'FORMAÇÃO SAVÂNICA'= 4,
-  'OUTRA ÁREA NÃO VEGETADA'= 25,
-  'CAMPO ALAGADO E ÁREA PANTANOSA'= 11
+  'Formación Forestal'= 3,            
+  'Formação Florestal'= 3,           
+  'Formación Natural No Forestal Inundable'= 11,      
+  'Otra Formación Natural No Forestal'= 12,       
+  'Outra Formação Natural Não Florestal'= 12,
+  'Mosaico de Agricultura y/o Pasto'= 21,
+  'Área sin Vegetación'= 25,
+  'Río, Lago u Océano'= 33
 ))
+
+## get classification regions
+regions <- ee$FeatureCollection('projects/mapbiomas-raisg/DATOS_AUXILIARES/VECTORES/paises-5')
+
+## list regions to be computed (use name to filter)
+regions_list <- c(
+  'Guyane Française',
+  'Suriname',
+  'Guyana'
+)
+
+## set years to be processed (bcz collections have different years, i moved to inner loop)
+#years <- seq(from=1985, to=2018)
 
 ## for each file
 for (i in 1:length(unique(file_name))) {
