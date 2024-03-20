@@ -16,7 +16,7 @@ file_path <- 'projects/mapbiomas-raisg/public/'
 
 ##  define files to be computed
 file_name <- c(
-  #'collection5/mapbiomas_raisg_panamazonia_collection5_integration_v1',
+  'collection5/mapbiomas_raisg_panamazonia_collection5_integration_v1',
   'collection4/mapbiomas_raisg_panamazonia_collection4_integration_v1',
   'collection3/mapbiomas_raisg_panamazonia_collection3_integration_v1',
   'collection2/mapbiomas_raisg_panamazonia_collection2_integration_v1'
