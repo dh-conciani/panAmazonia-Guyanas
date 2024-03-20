@@ -1,5 +1,6 @@
-## get accuracy for test version in the mapbiomas collection 8.0
-## --- --- --- EXPORT ACCURACY METRICS PER ECORREGION
+## get accuracy for guyanas regions, in the scope of pan-amazonia mapbiomas project 
+## --- --- --- EXPORT ACCURACY METRICS PER COUNTRY
+## dhemerson.costa@ipam.org.br
 
 ## get libraries
 library(rgee)
@@ -11,26 +12,23 @@ library(reshape2)
 ee_Initialize()
 
 ## set directories
-file_path <- 'projects/mapbiomas-workspace/public/'
+file_path <- 'projects/mapbiomas-raisg/public/'
 
 ##  define files to be computed
-file_name <- c( #'collection8/mapbiomas_collection80_integration_v1',
-  # 'CERRADO_col8_gapfill_incidence_temporal_frequency_geomorphology_spatial_v13',
-  # 'CERRADO_col8_gapfill_incidence_temporal_frequency_geomorphology_spatial_v5',
-  # 'CERRADO_col8_gapfill_incidence_temporal_frequency_geomorphology_spatial_v6',
-  # 'CERRADO_col8_gapfill_incidence_temporal_frequency_geomorphology_spatial_v7',
-  # 'CERRADO_col8_gapfill_incidence_temporal_frequency_geomorphology_spatial_v8',
-  # 'CERRADO_col8_gapfill_incidence_temporal_frequency_geomorphology_spatial_v9',
-  # 'CERRADO_col8_gapfill_incidence_temporal_frequency_geomorphology_spatial_v10',
-  #'CERRADO_col8_gapfill_incidence_temporal_frequency_geomorphology_spatial_v11',
-  'collection7_1/mapbiomas_collection71_integration_v1'
+file_name <- c(
+  'collection5/mapbiomas_raisg_panamazonia_collection2_integration_v1',
+  'collection5/mapbiomas_raisg_panamazonia_collection3_integration_v1',
+  'collection5/mapbiomas_raisg_panamazonia_collection4_integration_v1',
+  'collection5/mapbiomas_raisg_panamazonia_collection5_integration_v1'
 )
 
 ## set output path (local)
-output <- './tables/'
+output <- './table/'
 
 ## import validation points
-validation_points = ee$FeatureCollection('projects/mapbiomas-workspace/VALIDACAO/mapbiomas_85k_col2_points_w_edge_and_edited_v1')
+validation_points = ee$FeatureCollection('users/vieiramesquita/MAPBIOMAS/mapbiomas_amazonia_50K_RAISG_plus_Brasil_v6')
+
+Map$addLayer(validation_points)
 
 ## set classes to select from validation dataset
 selectClasses = c(
