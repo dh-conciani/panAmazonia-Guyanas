@@ -16,10 +16,10 @@ file_path <- 'projects/mapbiomas-raisg/public/'
 
 ##  define files to be computed
 file_name <- c(
-  'collection5/mapbiomas_raisg_panamazonia_collection2_integration_v1',
-  'collection4/mapbiomas_raisg_panamazonia_collection3_integration_v1',
-  'collection3/mapbiomas_raisg_panamazonia_collection4_integration_v1',
-  'collection2/mapbiomas_raisg_panamazonia_collection5_integration_v1'
+  'collection5/mapbiomas_raisg_panamazonia_collection5_integration_v1',
+  'collection4/mapbiomas_raisg_panamazonia_collection4_integration_v1',
+  'collection3/mapbiomas_raisg_panamazonia_collection3_integration_v1',
+  'collection2/mapbiomas_raisg_panamazonia_collection2_integration_v1'
 )
 
 ## set output path (local)
@@ -41,7 +41,6 @@ selectClasses = c(
 )
 
 ## set dictionary for each class
-## set dictionary
 classes <- ee$Dictionary(list(
   'Formación Forestal'= 3,            
   'Formação Florestal'= 3,           
@@ -72,6 +71,9 @@ for (i in 1:length(unique(file_name))) {
   ## read file [i]
   collection <- ee$Image(paste0(file_path, file_name[i]))
   
+  ## get years
+  years <- as.numeric(sapply(strsplit(collection$bandNames()$getInfo(), "_"), `[`, 2))
+  
   ## set recipes
   recipe_metrics <- as.data.frame(NULL)
   recipe_table <- as.data.frame(NULL)
@@ -79,34 +81,34 @@ for (i in 1:length(unique(file_name))) {
   ## for each year
   for(j in 1:length(unique(years))) {
     ## select year [j] and remap
-    print(paste0('processing year -->', years[j]))
+    print(paste0('processing year --> ', years[j]))
     
+    ## reamp to match validation points 
     collection_ij <- collection$select(paste0('classification_', years[j]))$
-      remap(c(3, 4, 5, 11, 12, 29, 15, 19, 39, 20, 40, 41, 46, 47, 48, 21, 23, 24, 30, 25, 33, 31),
-            c(3, 4, 3, 11, 12, 12, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 25, 25, 25, 25, 33, 33))$
+      remap(c(3, 4, 5, 6, 11, 12, 29, 13, 15, 18, 9,  35, 21, 23, 24, 30, 25, 33, 34, 27),
+            c(3, 3, 3, 3, 11, 12, 12, 12, 21, 21, 21, 21, 21, 25, 25, 25, 25, 33, 33, 27))$
       rename(paste0('classification_', years[j]))
     
     ## get validation points
     validation_ij <- validation_points$
-      filterMetadata('POINTEDITE', 'not_equals', 'true')$
+      filterMetadata('POINTEDITE', 'not_equals', 'TRUE')$
       filter(ee$Filter$inList(paste0('CLASS_', years[j]), selectClasses))$
-      filterBounds(regions)$
       map(function(feature) {
         return(feature$set('year', years[j])$
                  set('reference', classes$get(feature$get(paste0('CLASS_', years[j])))))
       })
-    
-    ## for each region
+
+        ## for each region
     for(k in 1:length(unique(regions_list))) {
       print(paste0('processing region --> ', regions_list[k]))
       
       ## clip classification for the region
       classification_ijk <- collection_ij$clip(
-        regions$filterMetadata('mapb', 'equals', regions_list[k]))
+        regions$filterMetadata('name', 'equals', regions_list[k]))
       
       ## clip val
       validation_ijk <- validation_ij$filterBounds(
-        regions$filterMetadata('mapb', 'equals', regions_list[k])$geometry())
+        regions$filterMetadata('name', 'equals', regions_list[k])$geometry())
       
       ## extract classification value for each point and pair it with the reference data
       paired_data <- classification_ijk$sampleRegions(
@@ -136,18 +138,19 @@ for (i in 1:length(unique(file_name))) {
       ## Check for missing classes in the reference
       missing_classes <- unique_predicted[!(unique_predicted %in% unique_reference)]
       if (length(missing_classes) > 0) {
-        warning("Classe presentes na variável 'predicted', mas não estão presentes na variável 'reference': ", paste(missing_classes, collapse = ", "))
+        warning("classes occurs in the variable 'predicted' but not in 'reference': ", paste(missing_classes, collapse = ", "))
       }
       
       ## Check for missing classes in the 'predicted' variable
       missing_classes <- unique_reference[!(unique_reference %in% unique_predicted)]
       if (length(missing_classes) > 0) {
-        warning("Classe presentes na variável 'reference', mas não estão presentes na variável 'predicted': ", paste(missing_classes, collapse = ", "))
+        warning("classes occurs in the variable 'reference', but not in 'predicted': ", paste(missing_classes, collapse = ", "))
       }
       
       ## Filter only classes present in both variables
       toCompute <- subset(toCompute, predicted %in% unique_reference & reference %in% unique_predicted)
       
+      ## get confusion matrix 
       confusion <- confusionMatrix(data = as.factor(toCompute$predicted),
                                    reference = as.factor(toCompute$reference))
       
